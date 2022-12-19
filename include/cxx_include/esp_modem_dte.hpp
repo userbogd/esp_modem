@@ -1,16 +1,8 @@
-// Copyright 2021 Espressif Systems (Shanghai) PTE LTD
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/*
+ * SPDX-FileCopyrightText: 2021-2022 Espressif Systems (Shanghai) CO LTD
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 #pragma once
 
@@ -76,6 +68,12 @@ public:
     void set_read_cb(std::function<bool(uint8_t *data, size_t len)> f);
 
     /**
+     * @brief Sets DTE error callback
+     * @param f Function to be called on DTE error
+     */
+    void set_error_cb(std::function<void(terminal_error err)> f);
+
+    /**
      * @brief Sets the DTE to desired mode (Command/Data/Cmux)
      * @param m Desired operation mode
      * @return true on success
@@ -100,8 +98,14 @@ protected:
     /**
      * @brief Allows for locking the DTE
      */
-    void lock()     { internal_lock.lock();   }
-    void unlock()   { internal_lock.unlock(); }
+    void lock()
+    {
+        internal_lock.lock();
+    }
+    void unlock()
+    {
+        internal_lock.unlock();
+    }
     friend class Scoped<DTE>;                               /*!< Declaring "Scoped<DTE> lock(dte)" locks this instance */
 private:
     static const size_t GOT_LINE = SignalGroup::bit0;       /*!< Bit indicating response available */
@@ -112,10 +116,11 @@ private:
     Lock internal_lock{};                                   /*!< Locks DTE operations */
     unique_buffer buffer;                                   /*!< DTE buffer */
     std::shared_ptr<CMux> cmux_term;                        /*!< Primary terminal for this DTE */
-    std::shared_ptr<Terminal> command_term;                 /*!< Reference to the terminal used for sending commands */
-    std::shared_ptr<Terminal> data_term;                    /*!< Secondary terminal for this DTE */
+    std::shared_ptr<Terminal> primary_term;                 /*!< Reference to the primary terminal (mostly for sending commands) */
+    std::shared_ptr<Terminal> secondary_term;               /*!< Secondary terminal for this DTE */
     modem_mode mode;                                        /*!< DTE operation mode */
     SignalGroup signal;                                     /*!< Event group used to signal request-response operations */
+    command_result result;                                  /*!< Command result of the currently exectuted command */
     std::function<bool(uint8_t *data, size_t len)> on_data; /*!< on data callback for current terminal */
 };
 

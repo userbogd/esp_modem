@@ -1,3 +1,9 @@
+/*
+ * SPDX-FileCopyrightText: 2022 Espressif Systems (Shanghai) CO LTD
+ *
+ * SPDX-License-Identifier: Unlicense OR CC0-1.0
+ */
+
 /*  softAP to PPPoS Example (modem_board)
 
    This example code is in the Public Domain (or CC0 licensed, at your option.)
@@ -54,6 +60,8 @@ public:
     {
         // configure
         esp_modem_dte_config_t dte_config = ESP_MODEM_DTE_DEFAULT_CONFIG();
+        dte_config.uart_config.tx_io_num = CONFIG_TEST_APP_UART_TX_PIN;
+        dte_config.uart_config.rx_io_num = CONFIG_TEST_APP_UART_RX_PIN;
         esp_modem_dce_config dce_config = ESP_MODEM_DCE_DEFAULT_CONFIG("");
 
         // create DTE and minimal network DCE
@@ -90,6 +98,7 @@ esp_err_t modem_init_network(esp_netif_t *netif)
 esp_err_t modem_start_network()
 {
     NetModule::start();
+    return ESP_OK;
 }
 
 void modem_stop_network()

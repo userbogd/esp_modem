@@ -1,16 +1,8 @@
-// Copyright 2021 Espressif Systems (Shanghai) PTE LTD
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/*
+ * SPDX-FileCopyrightText: 2021-2022 Espressif Systems (Shanghai) CO LTD
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 #pragma once
 
@@ -37,8 +29,13 @@ enum class modem_mode {
     UNDEF,
     COMMAND_MODE, /*!< Command mode -- the modem is supposed to send AT commands in this mode  */
     DATA_MODE,    /*!< Data mode -- the modem communicates with network interface on PPP protocol */
-    CMUX_MODE     /*!< CMUX (Multiplex mode) -- Simplified CMUX mode, which creates two virtual terminals,
+    CMUX_MODE,    /*!< CMUX (Multiplex mode) -- Simplified CMUX mode, which creates two virtual terminals,
                    *  assigning one solely to command interface and the other  to the data mode */
+    CMUX_MANUAL_MODE,    /*!< Enter CMUX mode manually -- just creates two virtual terminals */
+    CMUX_MANUAL_EXIT,    /*!< Exits CMUX mode manually -- just destroys two virtual terminals */
+    CMUX_MANUAL_DATA,    /*!< Sets the primary terminal to DATA mode in manual CMUX */
+    CMUX_MANUAL_COMMAND, /*!< Sets the primary terminal to COMMAND mode in manual CMUX */
+    CMUX_MANUAL_SWAP,    /*!< Swaps virtual terminals in manual CMUX mode (primary <-> secondary) */
 };
 
 /**
@@ -68,10 +65,10 @@ struct PdpContext {
 class CommandableIf {
 public:
     CommandableIf() = default;
-    CommandableIf(const CommandableIf&) = delete;
-    CommandableIf& operator=(const CommandableIf&) = delete;
-    CommandableIf(CommandableIf&&) = delete;
-    CommandableIf& operator=(CommandableIf&&) = delete;
+    CommandableIf(const CommandableIf &) = delete;
+    CommandableIf &operator=(const CommandableIf &) = delete;
+    CommandableIf(CommandableIf &&) = delete;
+    CommandableIf &operator=(CommandableIf &&) = delete;
     virtual ~CommandableIf() = default;
     /**
      * @brief Sends custom AT command
@@ -90,10 +87,10 @@ public:
 class ModuleIf {
 public:
     ModuleIf() = default;
-    ModuleIf(const ModuleIf&) = delete;
-    ModuleIf& operator=(const ModuleIf&) = delete;
-    ModuleIf(ModuleIf&&) = delete;
-    ModuleIf& operator=(ModuleIf&&) = delete;
+    ModuleIf(const ModuleIf &) = delete;
+    ModuleIf &operator=(const ModuleIf &) = delete;
+    ModuleIf(ModuleIf &&) = delete;
+    ModuleIf &operator=(ModuleIf &&) = delete;
     virtual ~ModuleIf() = default;
     /**
      * @brief Sets the data mode up (provides the necessary configuration to connect to the cellular network)

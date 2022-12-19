@@ -1,21 +1,15 @@
-// Copyright 2021 Espressif Systems (Shanghai) PTE LTD
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/*
+ * SPDX-FileCopyrightText: 2021-2022 Espressif Systems (Shanghai) CO LTD
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 #include <memory>
 #include <utility>
+#include <inttypes.h>
 #include <esp_log.h>
 #include <esp_event.h>
+#include "esp_idf_version.h"
 #include "cxx_include/esp_modem_netif.hpp"
 #include "cxx_include/esp_modem_dte.hpp"
 #include "esp_netif_ppp.h"
@@ -27,8 +21,8 @@ void Netif::on_ppp_changed(void *arg, esp_event_base_t event_base,
                            int32_t event_id, void *event_data)
 {
     auto *ppp = static_cast<Netif *>(arg);
-    if (event_id < NETIF_PP_PHASE_OFFSET) {
-        ESP_LOGI("esp_modem_netif", "PPP state changed event %d", event_id);
+    if (event_id > NETIF_PPP_ERRORNONE && event_id < NETIF_PP_PHASE_OFFSET) {
+        ESP_LOGI("esp_modem_netif", "PPP state changed event %" PRId32, event_id);
         // only notify the modem on state/error events, ignoring phase transitions
         ppp->signal.set(PPP_EXIT);
     }
@@ -58,7 +52,7 @@ esp_err_t Netif::esp_modem_post_attach(esp_netif_t *esp_netif, void *args)
     esp_netif_ppp_config_t ppp_config = { .ppp_phase_event_enabled = true,    // assuming phase enabled, as earlier IDFs
                                           .ppp_error_event_enabled = false
                                         }; // don't provide cfg getters so we enable both events
-#if ESP_IDF_VERSION_MAJOR >= 4 && ESP_IDF_VERSION_MINOR >= 4
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(4, 4, 0)
     esp_netif_ppp_get_params(esp_netif, &ppp_config);
 #endif // ESP-IDF >= v4.4
     if (!ppp_config.ppp_error_event_enabled) {
